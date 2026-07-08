@@ -294,6 +294,21 @@ window.chartJsReady = new Promise((resolve, reject) => {
     .mobile-nav button.active{ color:var(--amber); }
   }
 </style>
+
+<!-- كود تشغيل إشعارات OneSignal المتكامل -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignal = window.OneSignal || [];
+  OneSignal.push(function() {
+    OneSignal.init({
+      appId: "4b017612-1e59-4fc7-84b9-524a5b0e2153",
+      safari_web_id: "web.onesignal.auto.4b017612-1e59-4fc7-84b9-524a5b0e2153",
+      notifyButton: {
+        enable: true, /* جرس الاشتراك الصغير أسفل الشاشة */
+      },
+    });
+  });
+</script>
 </head>
 <body>
 
@@ -1053,7 +1068,7 @@ function renderTasks(){
     const subj = subjectById(t.subjectId);
     return `<div class="task-row ${t.done?'done':''}">
       <span class="checkbox" onclick="toggleTask('${t.id}')">${t.done?'✓':''}</span>
-      <span class="task-title">${t.title}</span>
+      <span class="task-title" style="word-break: break-word;">${t.title}</span>
       <span class="subject-tag"><span class="dot" style="background:${subj?subj.color:'#888'}"></span>${subj?subj.name:'—'}</span>
       <button class="ghost sm danger" onclick="deleteTask('${t.id}')">Remove</button>
     </div>`;
