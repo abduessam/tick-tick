@@ -27,21 +27,39 @@ window.chartJsReady = new Promise((resolve, reject) => {
 </script>
 <style>
   :root{
-    --bg: #0f1319;
-    --surface: #161b22;
-    --surface-2: #21262d;
-    --paper: #f0f6fc;
-    --amber: #fab042;
-    --amber-dim: #b87c28;
-    --sage: #57ab5a;
+    --bg: #0f1420;
+    --surface: #141b29;
+    --surface-2: #1d2637;
+    --paper: #eef3fc;
+    --amber: #3b82f6;
+    --amber-dim: #2563eb;
+    --sage: #2563eb;
     --coral: #f85149;
-    --blue-neon: #388bfd;
-    --text: #c9d1d9;
-    --muted: #8b949e;
-    --border: #30363d;
+    --blue-neon: #2563eb;
+    --text: #c7d2e3;
+    --muted: #7e8bab;
+    --border: #262f42;
+    --cal-cell-text: rgba(199, 210, 227, 0.42);
+    --cal-cell-text-active: #0d1424;
     --font-display: 'Cabinet Grotesk', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+  }
+  [data-theme="light"]{
+    --bg: #f4f7fd;
+    --surface: #ffffff;
+    --surface-2: #e9eefb;
+    --paper: #101a2e;
+    --amber: #2563eb;
+    --amber-dim: #1d4fc4;
+    --sage: #1d4fc4;
+    --coral: #d13b34;
+    --blue-neon: #2563eb;
+    --text: #26314a;
+    --muted: #63719a;
+    --border: #d7e0f5;
+    --cal-cell-text: #364566;
+    --cal-cell-text-active: #ffffff;
   }
   *{box-sizing:border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
   html,body{margin:0;padding:0;}
@@ -51,8 +69,8 @@ window.chartJsReady = new Promise((resolve, reject) => {
     font-family: var(--font-body);
     min-height:100vh;
     background-image:
-      radial-gradient(circle at 15% -10%, rgba(250,176,66,0.08), transparent 45%),
-      radial-gradient(circle at 100% 100%, rgba(87,171,90,0.05), transparent 40%);
+      radial-gradient(circle at 15% -10%, rgba(37,99,235,0.08), transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(37,99,235,0.05), transparent 40%);
   }
   .app{ display:flex; min-height:100vh; }
   
@@ -134,12 +152,12 @@ window.chartJsReady = new Promise((resolve, reject) => {
   .lamp-wrap{ display:flex; flex-direction:column; align-items:center; gap:18px; padding:16px 10px 8px; }
   .lamp-glow{
     width:190px; height:190px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background: radial-gradient(circle, rgba(250,176,66,var(--glow,0.15)) 0%, rgba(250,176,66,0) 70%);
+    background: radial-gradient(circle, rgba(37,99,235,var(--glow,0.15)) 0%, rgba(37,99,235,0) 70%);
     position: relative; z-index: 1;
   }
   .lamp-glow::before {
     content: ''; position: absolute; top:0; left:0; right:0; bottom:0; border-radius:50%;
-    background: radial-gradient(circle, rgba(250,176,66,0.25) 0%, rgba(250,176,66,0) 70%);
+    background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, rgba(37,99,235,0) 70%);
     opacity: 0; z-index: -1; transition: opacity 0.5s ease;
   }
   .lamp-glow.pulse-active::before {
@@ -152,6 +170,24 @@ window.chartJsReady = new Promise((resolve, reject) => {
 
   .timer-display{ font-family:var(--font-mono); font-weight:600; font-size:42px; letter-spacing:1px; color:var(--paper); }
   .timer-controls{ display:flex; gap:10px; }
+
+  /* Ambient sounds — integrated pill toggles */
+  .ambient-sounds{ margin-top: 18px; width: 100%; border-top: 1px solid var(--border); padding-top: 14px; }
+  .ambient-btn-row{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .ambient-btn{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:14px;
+    padding:10px 16px; min-width:72px; color:var(--muted); cursor:pointer;
+  }
+  .ambient-icon{ font-size:18px; line-height:1; }
+  .ambient-name{ font-size:11px; font-weight:600; }
+  .ambient-btn:hover{ border-color:var(--amber); color:var(--text); }
+  .ambient-btn.playing{
+    background: rgba(37,99,235,0.14); border-color:var(--amber); color:var(--amber);
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.25) inset;
+  }
+  .ambient-btn.playing .ambient-icon{ animation: ambientPulse 1.4s ease-in-out infinite; }
+  @keyframes ambientPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.15); } }
   
   /* Custom styled Forms (Dropdowns and Dates) */
   select, input, textarea{
@@ -169,7 +205,7 @@ window.chartJsReady = new Promise((resolve, reject) => {
   input::-webkit-calendar-picker-indicator {
     filter: invert(0.6) sepia(1) saturate(5) hue-rotate(15deg); cursor: pointer;
   }
-  select:focus, input:focus, textarea:focus{ border-color: var(--amber); box-shadow: 0 0 0 2px rgba(250,176,66,0.15); }
+  select:focus, input:focus, textarea:focus{ border-color: var(--amber); box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
   
   button{
     font-family:var(--font-body); font-weight:600; font-size:13.5px; border-radius:10px; border:1px solid var(--border); cursor:pointer; padding:10px 18px; background:var(--surface-2); color:var(--text);
@@ -249,15 +285,19 @@ window.chartJsReady = new Promise((resolve, reject) => {
   .cal-dow{ text-align:center; font-size:10px; color:var(--muted); padding-bottom:2px; }
   .cal-cell{
     width: 100%; aspect-ratio:1; border-radius:3px; display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-mono); font-size:9px; color:rgba(201,209,217,0.3); background:var(--surface-2);
+    font-family:var(--font-mono); font-size:9px; font-weight:600; color:var(--cal-cell-text); background:var(--surface-2);
     position:relative; cursor:default;
   }
+  .cal-cell.has-data{ color: var(--cal-cell-text-active); }
   .cal-cell.empty{ background:transparent; }
-  .cal-cell[title]:hover::after{
-    content:attr(title); position:absolute; bottom:115%; left:50%; transform:translateX(-50%);
-    background:#000; color:#fff; padding:4px 8px; border-radius:6px; font-size:10px;
-    white-space:nowrap; z-index:5; pointer-events:none;
+  .cal-tooltip{
+    position: fixed; background: var(--surface); color: var(--paper); border: 1px solid var(--border);
+    padding: 6px 11px; border-radius: 8px; font-size: 11.5px; font-family: var(--font-mono);
+    white-space: nowrap; z-index: 999; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    opacity: 0; transform: translate(-50%, calc(-100% + 6px)) scale(0.92);
+    transition: opacity 0.16s ease, transform 0.16s cubic-bezier(0.16,1,0.3,1);
   }
+  .cal-tooltip.show{ opacity: 1; transform: translate(-50%, calc(-100% - 4px)) scale(1); }
   .cal-legend{ display:flex; align-items:center; gap:4px; justify-content:flex-end; margin-top:8px; font-size:10px; color:var(--muted); }
   .cal-legend .cal-cell{ width:10px; height:10px; aspect-ratio:auto; }
 
@@ -319,6 +359,8 @@ window.chartJsReady = new Promise((resolve, reject) => {
   </div>
 </div>
 
+<div class="cal-tooltip" id="calTooltip"></div>
+
 <!-- Custom Alert Markup -->
 <div class="custom-toast" id="customToast">
   <span id="toastIcon">💡</span>
@@ -369,6 +411,7 @@ window.chartJsReady = new Promise((resolve, reject) => {
     <div class="sidebar-footer">
       <div class="streak-pill">🔥 <span id="streakLabel">0</span> Day Streak</div>
       <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
+        <button class="sm ghost" onclick="toggleThemeMode()" id="themeToggleBtn" style="text-align:left; width:100%; padding:4px 0;">🌙 Dark Mode</button>
         <button class="sm ghost" onclick="exportData()" style="text-align:left; width:100%; padding:4px 0;">📤 Export JSON</button>
         <button class="sm ghost" onclick="importData()" style="text-align:left; width:100%; padding:4px 0; color:var(--sage);">📥 Import JSON</button>
       </div>
@@ -425,21 +468,12 @@ window.chartJsReady = new Promise((resolve, reject) => {
             </div>
 
             <!-- Ambient Background Sounds -->
-            <div class="ambient-sounds" style="margin-top: 18px; width: 100%; border-top: 1px solid var(--border); padding-top: 14px;">
-              <div class="stat-label" style="margin-bottom: 10px; font-weight: 600; text-align: center;">🎧 Ambient Sounds</div>
-              <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 260px;">
-                  <span style="font-size: 13px; color: var(--text);">🔥 Fire</span>
-                  <audio controls loop style="height: 28px; width: 180px;"><source src="https://cdn.freesound.org/previews/549/549208_11244040-lq.mp3" type="audio/mpeg"></audio>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 260px;">
-                  <span style="font-size: 13px; color: var(--text);">☕ Cafe</span>
-                  <audio controls loop style="height: 28px; width: 180px;"><source src="https://cdn.freesound.org/previews/732/732984_11910076-lq.mp3" type="audio/mpeg"></audio>
-                </div>
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 260px;">
-                  <span style="font-size: 13px; color: var(--text);">🌧️ Rain</span>
-                  <audio controls loop style="height: 28px; width: 180px;"><source src="https://cdn.freesound.org/previews/728/728687_8407191-lq.mp3" type="audio/mpeg"></audio>
-                </div>
+            <div class="ambient-sounds">
+              <div class="stat-label" style="margin-bottom: 10px; font-weight: 600; text-align: center;">Ambient Sound</div>
+              <div class="ambient-btn-row">
+                <button type="button" class="ambient-btn" id="ambientBtn-fire" onclick="toggleAmbient('fire')">
+                  <span class="ambient-icon">🔥</span><span class="ambient-name">Fire</span>
+                </button>
               </div>
             </div>
 
@@ -547,14 +581,13 @@ window.chartJsReady = new Promise((resolve, reject) => {
             </div>
             <div class="trends-filter-selectors">
               <select id="trendsViewModeSelect" onchange="handleTrendsModeChange()">
-                <option value="day">Day</option>
-                <option value="week">Week</option>
+                <option value="week" selected>Week</option>
                 <option value="month">Month</option>
-                <option value="year" selected>Year</option>
+                <option value="year">Year</option>
               </select>
               <div class="trends-nav-arrows">
                 <button class="trends-arrow-btn" onclick="navigateTrendsRange(-1)">‹</button>
-                <span id="trendsRangeLabel">2026</span>
+                <span id="trendsRangeLabel">--</span>
                 <button class="trends-arrow-btn" onclick="navigateTrendsRange(1)">›</button>
               </div>
             </div>
@@ -580,9 +613,9 @@ window.chartJsReady = new Promise((resolve, reject) => {
               <div class="cal-legend">
                 <span>Less</span>
                 <div class="cal-cell" style="width:10px; height:10px; background:var(--surface-2);"></div>
-                <div class="cal-cell" style="width:10px; height:10px; background:rgba(250,176,66,0.3);"></div>
-                <div class="cal-cell" style="width:10px; height:10px; background:rgba(250,176,66,0.6);"></div>
-                <div class="cal-cell" style="width:10px; height:10px; background:rgba(250,176,66,1);"></div>
+                <div class="cal-cell" style="width:10px; height:10px; background:rgba(37,99,235,0.3);"></div>
+                <div class="cal-cell" style="width:10px; height:10px; background:rgba(37,99,235,0.6);"></div>
+                <div class="cal-cell" style="width:10px; height:10px; background:rgba(37,99,235,1);"></div>
                 <span>More</span>
               </div>
             </div>
@@ -615,10 +648,23 @@ window.chartJsReady = new Promise((resolve, reject) => {
 <script>
 const SUBJECT_COLORS = ['#fab042','#57ab5a','#f85149','#388bfd','#bc8cff','#eaeb60','#39d353'];
 
-let state = { subjects: [], tasks: [], sessions: [], lastGoalsPromptDate: '' };
+let state = { subjects: [], tasks: [], sessions: [], lastGoalsPromptDate: '', theme: 'dark' };
+
+function applyTheme(){
+  const isLight = state.theme === 'light';
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';
+}
+function toggleThemeMode(){
+  playSound('click');
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  applyTheme(); saveState();
+  if (typeof trendsMainChartInstance !== 'undefined' && trendsMainChartInstance) buildTrendsMainChart();
+}
 let timer = { running:false, subjectId:null, startedAt:null, elapsedMs:0, interval:null, mode:'stopwatch', countdownTotalMs:25*60000 };
 let calViewDate = new Date(); calViewDate.setDate(1);
-let trendsCurrentPivotDate = new Date(2026, 6, 8);
+let trendsCurrentPivotDate = new Date();
 
 const DEFAULT_SUBJECT_GOAL = 30;
 
@@ -677,6 +723,88 @@ function customPrompt(title, message, defaultValue = "") {
   });
 }
 
+let ambientCtx = null;
+let ambientNodes = {};
+
+function ensureAmbientCtx(){
+  if(!ambientCtx) ambientCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(ambientCtx.state === 'suspended') ambientCtx.resume();
+  return ambientCtx;
+}
+
+function makeNoiseBuffer(ctx, seconds){
+  const len = ctx.sampleRate * seconds;
+  const buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<len;i++) data[i] = Math.random()*2-1;
+  return buffer;
+}
+
+function startAmbient(key){
+  const ctx = ensureAmbientCtx();
+  const source = ctx.createBufferSource();
+  source.buffer = makeNoiseBuffer(ctx, 4);
+  source.loop = true;
+
+  const masterGain = ctx.createGain();
+  masterGain.gain.value = 0;
+
+  let node = source;
+  let cracklerId = null;
+
+  if(key === 'fire'){
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 400;
+    const lp2 = ctx.createBiquadFilter(); lp2.type = 'lowpass'; lp2.frequency.value = 180;
+    node.connect(lp); lp.connect(lp2); node = lp2;
+
+    // Occasional crackle pops layered on top
+    cracklerId = setInterval(() => {
+      if(Math.random() < 0.5) return;
+      const popCtx = ambientCtx; if(!popCtx) return;
+      const popSrc = popCtx.createBufferSource();
+      popSrc.buffer = makeNoiseBuffer(popCtx, 0.06);
+      const popFilter = popCtx.createBiquadFilter(); popFilter.type = 'bandpass'; popFilter.frequency.value = 1800 + Math.random()*1500;
+      const popGain = popCtx.createGain();
+      popGain.gain.setValueAtTime(0.12 + Math.random()*0.1, popCtx.currentTime);
+      popGain.gain.exponentialRampToValueAtTime(0.001, popCtx.currentTime + 0.08);
+      popSrc.connect(popFilter); popFilter.connect(popGain); popGain.connect(masterGain);
+      popSrc.start(); popSrc.stop(popCtx.currentTime + 0.09);
+    }, 260);
+  }
+
+  node.connect(masterGain);
+  masterGain.connect(ctx.destination);
+  source.start();
+  masterGain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 0.7);
+
+  ambientNodes[key] = { source, masterGain, cracklerId };
+}
+
+function stopAmbient(key){
+  const n = ambientNodes[key]; if(!n) return;
+  const ctx = ambientCtx;
+  n.masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
+  if(n.cracklerId) clearInterval(n.cracklerId);
+  setTimeout(() => { try { n.source.stop(); } catch(e){} }, 450);
+  delete ambientNodes[key];
+}
+
+function toggleAmbient(key){
+  const btn = document.getElementById('ambientBtn-' + key);
+  if(!btn) return;
+  if(ambientNodes[key]){
+    stopAmbient(key);
+    btn.classList.remove('playing');
+  } else {
+    try {
+      startAmbient(key);
+      btn.classList.add('playing');
+    } catch(e){
+      showToast('Ambient audio could not start on this device.', 'danger');
+    }
+  }
+}
+
 function playSound(type) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -712,6 +840,8 @@ async function loadState(){
   if(!state.tasks) state.tasks = [];
   if(!state.sessions) state.sessions = [];
   if(!state.lastGoalsPromptDate) state.lastGoalsPromptDate = '';
+  if(!state.theme) state.theme = 'dark';
+  applyTheme();
   state.subjects.forEach(s=>{ if(!s.goal) s.goal = DEFAULT_SUBJECT_GOAL; });
   document.getElementById('manualDate').value = todayStr();
   document.getElementById('manualTime').value = "10:00";
@@ -800,7 +930,12 @@ function importData() {
 }
 
 function uid(){ return Math.random().toString(36).slice(2,10); }
-function todayStr(d=new Date()){ return d.toISOString().slice(0,10); }
+function todayStr(d=new Date()){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 function fmtMinutes(mins){
   if(mins < 60) return mins + 'm';
   return Math.floor(mins/60) + 'h ' + (mins%60 ? (mins%60)+'m' : '');
@@ -990,9 +1125,9 @@ function updateDashboardStats() {
 
   const compEl = document.getElementById('dashWeekComparison');
   if (thisWeekMins > lastWeekMins) {
-    compEl.innerHTML = `<span style="color: var(--sage);">▲ More (+${fmtMinutes(thisWeekMins - lastWeekMins)})</span>`;
+    compEl.innerHTML = `<span style="color: #22c55e;">▲ More (+${fmtMinutes(thisWeekMins - lastWeekMins)})</span>`;
   } else if (thisWeekMins < lastWeekMins) {
-    compEl.innerHTML = `<span style="color: var(--coral);">▼ Less (-${fmtMinutes(lastWeekMins - thisWeekMins)})</span>`;
+    compEl.innerHTML = `<span style="color: #ef4444;">▼ Less (-${fmtMinutes(lastWeekMins - thisWeekMins)})</span>`;
   } else {
     compEl.innerHTML = `<span style="color: var(--muted);">Same</span>`;
   }
@@ -1138,11 +1273,28 @@ function renderCalendar(){
   for(let d=1; d<=daysInMonth; d++){
     const ds = todayStr(new Date(year, month, d)); const mins = minutesOnDate(ds);
     const intensity = mins===0 ? 0 : Math.max(0.2, mins/maxMinutes);
-    const bg = mins===0 ? 'var(--surface-2)' : `rgba(250,176,66,${intensity.toFixed(2)})`;
+    const bg = mins===0 ? 'var(--surface-2)' : `rgba(37,99,235,${intensity.toFixed(2)})`;
     const isToday = ds===todayStr() ? 'box-shadow:0 0 0 1.5px var(--amber) inset;' : '';
-    cells += `<div class="cal-cell" style="background:${bg}; ${isToday}" title="${ds}: ${fmtMinutes(mins)}">${d}</div>`;
+    const hasData = mins > 0 ? ' has-data' : '';
+    cells += `<div class="cal-cell${hasData}" style="background:${bg}; ${isToday}" data-tip="${ds}: ${fmtMinutes(mins)}">${d}</div>`;
   }
   document.getElementById('calGrid').innerHTML = cells;
+  wireCalTooltips();
+}
+
+function wireCalTooltips(){
+  const tip = document.getElementById('calTooltip');
+  document.querySelectorAll('#calGrid .cal-cell[data-tip]').forEach(cell => {
+    cell.addEventListener('mouseenter', () => {
+      const r = cell.getBoundingClientRect();
+      tip.textContent = cell.dataset.tip;
+      tip.style.left = (r.left + r.width/2) + 'px';
+      tip.style.top = r.top + 'px';
+      tip.classList.remove('show');
+      requestAnimationFrame(() => requestAnimationFrame(() => tip.classList.add('show')));
+    });
+    cell.addEventListener('mouseleave', () => tip.classList.remove('show'));
+  });
 }
 
 function renderHourlyHeatmap() {
@@ -1260,23 +1412,7 @@ function buildTrendsMainChart() {
   let totalMinutesInScope = 0;
   let activeUnitsCount = 0;
 
-  if (mode === 'day') {
-    titleText = trendsCurrentPivotDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-    labels = ["12 AM", "2 AM", "4 AM", "6 AM", "8 AM", "10 AM", "12 PM", "2 PM", "4 PM", "6 PM", "8 PM", "10 PM"];
-    dataPoints = Array(12).fill(0);
-    
-    let targetDateStr = todayStr(trendsCurrentPivotDate);
-    state.sessions.forEach(s => {
-      if (s.date === targetDateStr && s.startedAt) {
-        let hour = new Date(s.startedAt).getHours();
-        let bucket = Math.floor(hour / 2);
-        dataPoints[bucket] += s.minutes;
-        totalMinutesInScope += s.minutes;
-      }
-    });
-    activeUnitsCount = totalMinutesInScope > 0 ? 1 : 0;
-
-  } else if (mode === 'week') {
+  if (mode === 'week') {
     let currentDay = trendsCurrentPivotDate.getDay();
     let distanceToMonday = (currentDay === 0 ? 6 : currentDay - 1);
     let monday = new Date(trendsCurrentPivotDate);
@@ -1343,9 +1479,17 @@ function buildTrendsMainChart() {
   let avgMins = activeUnitsCount > 0 ? Math.round(totalMinutesInScope / activeUnitsCount) : 0;
   document.getElementById('trendsDailyAverageLabel').textContent = `Daily Average: ${Math.floor(avgMins / 60)}h ${String(avgMins % 60).padStart(2, '0')}m`;
 
+  const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const lineColor = cssVar('--amber') || '#3fd670';
+  const surfaceColor = cssVar('--surface') || '#161b22';
+  const paperColor = cssVar('--paper') || '#f0f6fc';
+  const mutedColor = cssVar('--muted') || '#8b949e';
+  const borderColor = cssVar('--border') || '#30363d';
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
   const gradient = ctx.createLinearGradient(0, 0, 0, 210);
-  gradient.addColorStop(0, 'rgba(56, 139, 253, 0.42)');
-  gradient.addColorStop(1, 'rgba(56, 139, 253, 0.01)');
+  gradient.addColorStop(0, isLight ? 'rgba(29,79,196,0.28)' : 'rgba(37,99,235,0.32)');
+  gradient.addColorStop(1, isLight ? 'rgba(29,79,196,0.02)' : 'rgba(37,99,235,0.01)');
 
   if (trendsMainChartInstance) trendsMainChartInstance.destroy();
   
@@ -1355,13 +1499,13 @@ function buildTrendsMainChart() {
       labels: labels,
       datasets: [{
         data: dataPoints.map(m => (m / 60).toFixed(2)),
-        borderColor: '#388bfd',
+        borderColor: lineColor,
         borderWidth: 3,
         backgroundColor: gradient,
         fill: true,
         tension: 0.38,
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: '#388bfd',
+        pointBackgroundColor: isLight ? '#ffffff' : '#ffffff',
+        pointBorderColor: lineColor,
         pointBorderWidth: 2.5,
         pointRadius: mode === 'month' ? 2 : 4,
         pointHoverRadius: 6
@@ -1377,10 +1521,10 @@ function buildTrendsMainChart() {
       plugins: { 
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#161b22',
-          titleColor: '#f0f6fc',
-          bodyColor: '#fab042',
-          borderColor: '#30363d',
+          backgroundColor: surfaceColor,
+          titleColor: paperColor,
+          bodyColor: lineColor,
+          borderColor: borderColor,
           borderWidth: 1,
           padding: 10,
           displayColors: false,
@@ -1394,11 +1538,11 @@ function buildTrendsMainChart() {
         }
       },
       scales: {
-        x: { ticks: { color: '#8b949e', font: { family: 'Inter', size: 11 } }, grid: { display: false } },
+        x: { ticks: { color: mutedColor, font: { family: 'Inter', size: 11 } }, grid: { display: false } },
         y: { 
           min: 0,
-          ticks: { color: '#8b949e', font: { family: 'JetBrains Mono', size: 10 }, callback: value => value + 'h' }, 
-          grid: { color: 'rgba(255,255,255,0.03)', borderDash: [4, 4] } 
+          ticks: { color: mutedColor, font: { family: 'JetBrains Mono', size: 10 }, callback: value => value + 'h' }, 
+          grid: { color: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.03)', borderDash: [4, 4] } 
         }
       }
     }
