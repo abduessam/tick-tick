@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudyDesk - Professional</title>
-<link rel="icon" type="image/jpeg" href="https://raw.githubusercontent.com/abduessam/tick-tick/refs/heads/main/images.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script>
@@ -281,6 +280,12 @@ window.chartJsReady = new Promise((resolve, reject) => {
   .trends-arrow-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; font-size: 16px; }
   .trends-arrow-btn:hover { color: var(--paper); }
 
+  /* Soundscapes Custom Styling */
+  .soundscape-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 6px; }
+  .soundscape-info { font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .soundscape-controls { display: flex; align-items: center; gap: 10px; }
+  .soundscape-vol { width: 65px; accent-color: var(--amber); height: 4px; cursor: pointer; }
+
   /* mobile bottom nav */
   .mobile-nav{ display:none; }
   @media (max-width: 720px){
@@ -439,6 +444,38 @@ window.chartJsReady = new Promise((resolve, reject) => {
               <button id="pauseBtn" onclick="pauseTimer()" disabled>Pause</button>
               <button class="danger" id="stopBtn" onclick="stopTimer()" disabled>End & Save</button>
             </div>
+
+            <!-- Integrated Focus Soundscapes -->
+            <div style="width: 100%; margin-top: 18px; border-top: 1px solid var(--border); padding-top: 16px;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; text-align: center; letter-spacing: 0.5px;">FOCUS SOUNDSCAPES</div>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <!-- Cafe -->
+                <div class="soundscape-row">
+                  <span class="soundscape-info">☕ Cozy Café</span>
+                  <div class="soundscape-controls">
+                    <input type="range" class="soundscape-vol" id="volume-cafe" min="0" max="1" step="0.05" value="0.5" oninput="changeSoundscapeVolume('cafe', this.value)">
+                    <button class="sm" id="btn-cafe" onclick="toggleSoundscape('cafe')" style="min-width: 62px;">Play</button>
+                  </div>
+                </div>
+                <!-- Rain -->
+                <div class="soundscape-row">
+                  <span class="soundscape-info">🌧️ Rainy Desk</span>
+                  <div class="soundscape-controls">
+                    <input type="range" class="soundscape-vol" id="volume-rain" min="0" max="1" step="0.05" value="0.5" oninput="changeSoundscapeVolume('rain', this.value)">
+                    <button class="sm" id="btn-rain" onclick="toggleSoundscape('rain')" style="min-width: 62px;">Play</button>
+                  </div>
+                </div>
+                <!-- Fire -->
+                <div class="soundscape-row">
+                  <span class="soundscape-info">🔥 Campfire</span>
+                  <div class="soundscape-controls">
+                    <input type="range" class="soundscape-vol" id="volume-fire" min="0" max="1" step="0.05" value="0.5" oninput="changeSoundscapeVolume('fire', this.value)">
+                    <button class="sm" id="btn-fire" onclick="toggleSoundscape('fire')" style="min-width: 62px;">Play</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -617,6 +654,73 @@ let calViewDate = new Date(); calViewDate.setDate(1);
 let trendsCurrentPivotDate = new Date(2026, 6, 8);
 
 const DEFAULT_SUBJECT_GOAL = 30;
+
+/* --- Focus Soundscapes Audio Engine --- */
+let soundscapeCtx;
+const soundscapes = {
+  'white-noise': { type: 'generated', node: null, gainNode: null, playing: false },
+  'cafe': { type: 'url', src: 'https://cdn.freesound.org/previews/732/732984_11910076-lq.mp3', instance: null, playing: false },
+  'rain': { type: 'url', src: 'https://cdn.freesound.org/previews/728/728687_8407191-lq.mp3', instance: null, playing: false },
+  'fire': { type: 'url', src: 'https://cdn.freesound.org/previews/549/549208_11244040-lq.mp3', instance: null, playing: false }
+};
+
+function toggleSoundscape(key) {
+  const s = soundscapes[key];
+  const btn = document.getElementById(`btn-${key}`);
+  const vol = parseFloat(document.getElementById(`volume-${key}`).value);
+
+  if (s.playing) {
+    if (s.type === 'generated') {
+      if (s.node) { s.node.stop(); s.node.disconnect(); s.node = null; }
+    } else {
+      if (s.instance) { s.instance.pause(); }
+    }
+    s.playing = false;
+    btn.textContent = 'Play';
+    btn.classList.remove('primary');
+  } else {
+    if (s.type === 'generated') {
+      if (!soundscapeCtx) soundscapeCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const bufferSize = 2 * soundscapeCtx.sampleRate;
+      const noiseBuffer = soundscapeCtx.createBuffer(1, bufferSize, soundscapeCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+      
+      s.node = soundscapeCtx.createBufferSource();
+      s.node.buffer = noiseBuffer;
+      s.node.loop = true;
+      
+      s.gainNode = soundscapeCtx.createGain();
+      s.gainNode.gain.value = vol;
+      
+      s.node.connect(s.gainNode);
+      s.gainNode.connect(soundscapeCtx.destination);
+      s.node.start();
+    } else {
+      if (!s.instance) {
+        s.instance = new Audio(s.src);
+        s.instance.loop = true;
+      }
+      s.instance.volume = vol;
+      s.instance.play().catch(e => showToast('Interact with the page first to unlock media playback.', 'normal'));
+    }
+    s.playing = true;
+    btn.textContent = 'Stop';
+    btn.classList.add('primary');
+  }
+}
+
+function changeSoundscapeVolume(key, val) {
+  const s = soundscapes[key];
+  const v = parseFloat(val);
+  if (s.playing) {
+    if (s.type === 'generated' && s.gainNode) {
+      s.gainNode.gain.value = v;
+    } else if (s.instance) {
+      s.instance.volume = v;
+    }
+  }
+}
 
 /* --- Native In-App Notification & Modal Engine --- */
 function showToast(msg, type = 'normal') {
@@ -1126,8 +1230,7 @@ function renderCalendar(){
 
   const firstDay = new Date(year, month, 1); const startOffset = firstDay.getDay();
   const daysInMonth = new Date(year, month+1, 0).getDate();
-  let maxMinutes = 1;
-  for(let d=1; d<=daysInMonth; d++) maxMinutes = Math.max(maxMinutes, minutesOnDate(todayStr(new Date(year, month, d))));
+  let maxMinutes = 1;maxMinutes = Math.max(maxMinutes, minutesOnDate(todayStr(new Date(year, month, d))));
 
   let cells = '';
   for(let i=0;i<startOffset;i++) cells += '<div class="cal-cell empty"></div>';
