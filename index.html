@@ -339,10 +339,11 @@ window.chartJsReady = new Promise((resolve, reject) => {
 
 <!-- Setup Daily Goals Overlay -->
 <div class="custom-dialog-overlay" id="dailyGoalsOverlay" style="z-index: 99999;">
-  <div class="custom-dialog" style="max-width: 460px;">
+  <div class="custom-dialog" style="max-width: 500px;">
     <div class="custom-dialog-title">🎯 New Daily Goals</div>
-    <div class="custom-dialog-msg">What objectives or tasks do you plan to achieve today? Enter each objective on a separate line:</div>
-    <textarea id="dailyGoalsInput" rows="5" style="width: 100%; resize: none; margin-bottom: 20px;" placeholder="e.g.,&#10;Complete Calculus Assignment 1&#10;Review Physics Lecture Notes&#10;Practice 3 coding challenges"></textarea>
+    <div class="custom-dialog-msg">What objectives or tasks do you plan to achieve today? Add each one and choose whether it's a one-off Daily Task or part of your Master Strategy checklist:</div>
+    <div id="dailyGoalsRows" style="display:flex; flex-direction:column; gap:10px; max-height:320px; overflow-y:auto; margin:16px 0; padding:2px 4px 2px 2px;"></div>
+    <button type="button" onclick="addDailyGoalRow()" style="width:100%; margin-bottom:20px; padding:10px; border-radius:10px; border:1px dashed var(--border); background:transparent; color:var(--muted); cursor:pointer; font-weight:600; font-size:13px;">+ Add Another Task</button>
     <div class="custom-dialog-actions">
       <button class="primary" onclick="saveDailyGoals()">Save & Start Day</button>
     </div>
@@ -857,33 +858,83 @@ async function saveState(){
 
 function checkDailyGoalsPrompt() {
   if (state.lastGoalsPromptDate !== todayStr()) {
-    document.getElementById('dailyGoalsOverlay').classList.add('active');
+    // A new day has started: wipe yesterday's daily tasks (done or not) automatically.
+    const hadDailyTasks = state.tasks.some(t => t.isDaily);
+    if (hadDailyTasks) {
+      state.tasks = state.tasks.filter(t => !t.isDaily);
+      saveState();
+      renderAll();
+    }
+    openDailyGoalsOverlay();
   }
 }
 
+function buildDailyGoalRow(id) {
+  const subjectOpts = state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('') || '<option value="">+ Add Subject First</option>';
+  return `
+  <div class="goal-row-item" data-row-id="${id}" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:10px 12px;">
+    <input type="text" class="goal-row-input" placeholder="Task objective description..." style="flex:2 1 160px; margin:0;">
+    <select class="goal-row-type" onchange="toggleGoalRowSubject('${id}')" style="flex:1 1 130px; margin:0;">
+      <option value="daily">Daily Task</option>
+      <option value="master">Master Strategy</option>
+    </select>
+    <select class="goal-row-subject" style="flex:1 1 130px; margin:0; display:none;">${subjectOpts}</select>
+    <button type="button" onclick="removeDailyGoalRow('${id}')" title="Remove" style="background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:15px; padding:4px 6px; line-height:1;">✕</button>
+  </div>`;
+}
+
+function addDailyGoalRow() {
+  const wrap = document.getElementById('dailyGoalsRows');
+  const id = uid();
+  wrap.insertAdjacentHTML('beforeend', buildDailyGoalRow(id));
+}
+
+function removeDailyGoalRow(id) {
+  const wrap = document.getElementById('dailyGoalsRows');
+  const row = wrap.querySelector(`[data-row-id="${id}"]`);
+  if (row) row.remove();
+  if (wrap.children.length === 0) addDailyGoalRow();
+}
+
+function toggleGoalRowSubject(id) {
+  const row = document.querySelector(`#dailyGoalsRows [data-row-id="${id}"]`);
+  if (!row) return;
+  const type = row.querySelector('.goal-row-type').value;
+  row.querySelector('.goal-row-subject').style.display = type === 'master' ? '' : 'none';
+}
+
+function openDailyGoalsOverlay() {
+  const wrap = document.getElementById('dailyGoalsRows');
+  wrap.innerHTML = '';
+  addDailyGoalRow();
+  document.getElementById('dailyGoalsOverlay').classList.add('active');
+}
+
 function saveDailyGoals() {
-  const textarea = document.getElementById('dailyGoalsInput');
-  const text = textarea.value.trim();
-  if (text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    const defaultSubjectId = state.subjects[0]?.id || 's1';
-    lines.forEach(line => {
-      state.tasks.unshift({
-        id: uid(),
-        subjectId: defaultSubjectId,
-        title: line,
-        done: false,
-        isDaily: true,
-        createdAt: Date.now()
-      });
+  const rows = Array.from(document.querySelectorAll('#dailyGoalsRows .goal-row-item'));
+  const defaultSubjectId = state.subjects[0]?.id || 's1';
+  let addedCount = 0;
+  rows.forEach(row => {
+    const title = row.querySelector('.goal-row-input').value.trim();
+    if (!title) return;
+    const type = row.querySelector('.goal-row-type').value;
+    const isDaily = type !== 'master';
+    const chosenSubjectId = row.querySelector('.goal-row-subject').value;
+    state.tasks.unshift({
+      id: uid(),
+      subjectId: isDaily ? defaultSubjectId : (chosenSubjectId || defaultSubjectId),
+      title: title,
+      done: false,
+      isDaily: isDaily,
+      createdAt: Date.now()
     });
-    textarea.value = '';
-  }
+    addedCount++;
+  });
   state.lastGoalsPromptDate = todayStr();
   saveState();
   document.getElementById('dailyGoalsOverlay').classList.remove('active');
   renderAll();
-  showToast('Daily goals successfully recorded.', 'success');
+  showToast(addedCount > 0 ? 'Daily goals successfully recorded.' : 'Day started — no tasks added.', 'success');
 }
 
 function addDailyTask() {
@@ -1115,13 +1166,17 @@ function updateDashboardStats() {
   const totalMins = state.sessions.reduce((a, s) => a + s.minutes, 0);
   document.getElementById('dashTotalHours').textContent = (totalMins / 60).toFixed(1) + ' hrs';
 
-  const now = Date.now();
   const oneDayMs = 24 * 60 * 60 * 1000;
-  const sevenDaysAgo = now - (7 * oneDayMs);
-  const fourteenDaysAgo = now - (14 * oneDayMs);
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  const distanceToSaturday = (todayDate.getDay() - 6 + 7) % 7;
+  const thisWeekStart = new Date(todayDate);
+  thisWeekStart.setDate(todayDate.getDate() - distanceToSaturday);
+  const thisWeekStartMs = thisWeekStart.getTime();
+  const lastWeekStartMs = thisWeekStartMs - (7 * oneDayMs);
 
-  const thisWeekMins = state.sessions.filter(s => s.startedAt && s.startedAt >= sevenDaysAgo).reduce((a, s) => a + s.minutes, 0);
-  const lastWeekMins = state.sessions.filter(s => s.startedAt && s.startedAt >= fourteenDaysAgo && s.startedAt < sevenDaysAgo).reduce((a, s) => a + s.minutes, 0);
+  const thisWeekMins = state.sessions.filter(s => s.startedAt && s.startedAt >= thisWeekStartMs).reduce((a, s) => a + s.minutes, 0);
+  const lastWeekMins = state.sessions.filter(s => s.startedAt && s.startedAt >= lastWeekStartMs && s.startedAt < thisWeekStartMs).reduce((a, s) => a + s.minutes, 0);
 
   const compEl = document.getElementById('dashWeekComparison');
   if (thisWeekMins > lastWeekMins) {
@@ -1414,17 +1469,17 @@ function buildTrendsMainChart() {
 
   if (mode === 'week') {
     let currentDay = trendsCurrentPivotDate.getDay();
-    let distanceToMonday = (currentDay === 0 ? 6 : currentDay - 1);
-    let monday = new Date(trendsCurrentPivotDate);
-    monday.setDate(trendsCurrentPivotDate.getDate() - distanceToMonday);
+    let distanceToSaturday = (currentDay - 6 + 7) % 7;
+    let weekStart = new Date(trendsCurrentPivotDate);
+    weekStart.setDate(trendsCurrentPivotDate.getDate() - distanceToSaturday);
     
-    titleText = `Week ${getWeekNumber(monday)} (${monday.getFullYear()})`;
-    labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    titleText = `Week ${getWeekNumber(weekStart)} (${weekStart.getFullYear()})`;
+    labels = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
     dataPoints = Array(7).fill(0);
     
     let daysTracked = new Set();
     for (let i = 0; i < 7; i++) {
-      let d = new Date(monday); d.setDate(monday.getDate() + i);
+      let d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
       let dStr = todayStr(d);
       state.sessions.forEach(s => {
         if (s.date === dStr) {
@@ -1570,6 +1625,7 @@ function renderAll(){
   await loadState(); 
   renderAll(); 
   checkDailyGoalsPrompt();
+  setInterval(checkDailyGoalsPrompt, 60000);
 })();
 </script>
 </body>
