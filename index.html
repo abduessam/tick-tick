@@ -174,6 +174,46 @@ window.chartJsReady = new Promise((resolve, reject) => {
 
   .timer-display{ font-family:var(--font-mono); font-weight:600; font-size:42px; letter-spacing:1px; color:var(--paper); }
   .timer-controls{ display:flex; gap:10px; }
+  .fullscreen-btn{
+    position:absolute; top:0; right:0; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:10px; width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+    color:var(--muted); cursor:pointer; padding:0;
+  }
+  .fullscreen-btn:hover{ color:var(--amber); border-color:var(--amber); }
+
+  /* Fullscreen Focus Overlay */
+  .focus-fullscreen-overlay{
+    position:fixed; inset:0; background:var(--bg); z-index:10000;
+    display:none; flex-direction:column; align-items:center; justify-content:center; gap:26px;
+    background-image:
+      radial-gradient(circle at 15% -10%, rgba(37,99,235,0.10), transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(37,99,235,0.07), transparent 40%);
+  }
+  .focus-fullscreen-overlay.active{ display:flex; }
+  .fs-exit-btn{
+    position:absolute; top:24px; right:28px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+    color:var(--muted); cursor:pointer;
+  }
+  .fs-exit-btn:hover{ color:var(--coral); border-color:var(--coral); }
+  .fs-subject{ font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--muted); letter-spacing:0.5px; }
+  .fs-lamp-glow{
+    width:min(52vw,420px); height:min(52vw,420px); border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle, rgba(37,99,235,var(--glow,0.15)) 0%, rgba(37,99,235,0) 70%);
+    position: relative; z-index: 1;
+  }
+  .fs-lamp-glow::before {
+    content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:50%;
+    background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, rgba(37,99,235,0) 70%);
+    opacity:0; z-index:-1; transition: opacity 0.5s ease;
+  }
+  .fs-lamp-glow.pulse-active::before{ animation: smoothPulse 1s infinite alternate ease-in-out; }
+  .fs-timer-display{
+    font-family:var(--font-mono); font-weight:700; letter-spacing:2px; color:var(--paper);
+    font-size:clamp(48px, 9vw, 96px);
+  }
+  .fs-timer-controls{ display:flex; gap:14px; }
+  .fs-timer-controls button{ padding:12px 26px; font-size:15px; }
 
   /* Ambient sounds — integrated pill toggles */
   .ambient-sounds{ margin-top: 18px; width: 100%; border-top: 1px solid var(--border); padding-top: 14px; }
@@ -324,6 +364,53 @@ window.chartJsReady = new Promise((resolve, reject) => {
   .trends-arrow-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 4px; font-size: 16px; }
   .trends-arrow-btn:hover { color: var(--paper); }
 
+  /* ============ Professional Polish Layer ============ */
+  html{ scroll-behavior:smooth; }
+  body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  *{ transition-property: background-color, border-color, color, box-shadow, transform, opacity; }
+
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:20px; border:2px solid var(--bg); background-clip:padding-box; }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--muted); background-clip:padding-box; }
+  *{ scrollbar-width:thin; scrollbar-color: var(--border) transparent; }
+
+  a, button, .nav-btn, .checkbox, .ambient-btn, select, input, .fullscreen-btn, .subject-chip .x, .mode-toggle button{
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:focus-visible, select:focus-visible, input:focus-visible, .nav-btn:focus-visible, .checkbox:focus-visible{
+    outline:2px solid var(--amber); outline-offset:2px;
+  }
+
+  .card{ transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease; }
+  .card:hover{ box-shadow: 0 10px 26px rgba(0,0,0,0.22); }
+  .dash-stat-box{ transition: border-color 0.2s ease, transform 0.2s ease; }
+  .dash-stat-box:hover{ border-color:var(--amber); transform:translateY(-2px); }
+
+  button{ letter-spacing:0.1px; }
+  button:disabled{ cursor:not-allowed; }
+  button:not(:disabled):active{ transform: translateY(1px) scale(0.98); }
+
+  .nav-btn{ transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; }
+  .brand{ letter-spacing:-0.3px; }
+  h1.page-title{ letter-spacing:-0.4px; }
+
+  .subject-chip, .ambient-btn, .checkbox{ transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease; }
+  .checkbox:hover{ border-color:var(--amber); }
+  .task-row{ border-radius:8px; transition: background-color 0.2s ease; }
+  .task-row:hover{ background: var(--surface-2); }
+
+  ::selection{ background: rgba(37,99,235,0.35); color:var(--paper); }
+
+  /* skeleton loading shimmer, for future use */
+  .skeleton{ position:relative; overflow:hidden; background:var(--surface-2); border-radius:8px; }
+  .skeleton::after{
+    content:''; position:absolute; inset:0; transform:translateX(-100%);
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+  @keyframes shimmer{ 100%{ transform:translateX(100%); } }
+
   /* mobile bottom nav */
   .mobile-nav{ display:none; }
   @media (max-width: 720px){
@@ -361,6 +448,8 @@ window.chartJsReady = new Promise((resolve, reject) => {
   <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" /></symbol>
   <symbol id="icon-trophy" viewBox="0 0 24 24"><path d="M8 3h8v6a4 4 0 01-8 0z" /><path d="M8 4H5a3 3 0 003 3" /><path d="M16 4h3a3 3 0 01-3 3" /><line x1="12" y1="13" x2="12" y2="17" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="9.5" y1="17" x2="14.5" y2="17" /></symbol>
   <symbol id="icon-trending-up" viewBox="0 0 24 24"><polyline points="22 6 13.5 15 8.5 10 2 17" /><polyline points="16 6 22 6 22 12" /></symbol>
+  <symbol id="icon-expand" viewBox="0 0 24 24"><polyline points="9 3 3 3 3 9" /><polyline points="15 3 21 3 21 9" /><polyline points="3 15 3 21 9 21" /><polyline points="21 15 21 21 15 21" /></symbol>
+  <symbol id="icon-minimize" viewBox="0 0 24 24"><polyline points="4 9 9 9 9 4" /><polyline points="20 9 15 9 15 4" /><polyline points="4 15 9 15 9 20" /><polyline points="20 15 15 15 15 20" /></symbol>
 </svg>
 
 <!-- Setup Daily Goals Overlay -->
@@ -387,6 +476,22 @@ window.chartJsReady = new Promise((resolve, reject) => {
 </div>
 
 <div class="cal-tooltip" id="calTooltip"></div>
+
+<!-- Fullscreen Focus Timer Overlay -->
+<div class="focus-fullscreen-overlay" id="focusFullscreenOverlay">
+  <button type="button" class="fs-exit-btn" title="Exit fullscreen" onclick="exitFullscreenTimer()">
+    <svg class="icon icon-lg"><use href="#icon-minimize"/></svg>
+  </button>
+  <div class="fs-subject" id="fsSubjectLabel">Select a subject to begin</div>
+  <div class="fs-lamp-glow" id="fsLampGlow">
+    <div class="fs-timer-display" id="fsTimerDisplay">00:00:00</div>
+  </div>
+  <div class="fs-timer-controls">
+    <button class="primary" id="fsStartBtn" onclick="startTimer()">Start</button>
+    <button id="fsPauseBtn" onclick="pauseTimer()" disabled>Pause</button>
+    <button class="danger" id="fsStopBtn" onclick="stopTimer()" disabled>End & Save</button>
+  </div>
+</div>
 
 <!-- Custom Alert Markup -->
 <div class="custom-toast" id="customToast">
@@ -495,7 +600,10 @@ window.chartJsReady = new Promise((resolve, reject) => {
 
       <div class="grid grid-2" style="margin-bottom: 16px;">
         <!-- Card 1: Smart Focus Engine -->
-        <div class="card">
+        <div class="card" style="position:relative;">
+          <button type="button" class="fullscreen-btn" title="Fullscreen focus mode" onclick="enterFullscreenTimer()">
+            <svg class="icon"><use href="#icon-expand"/></svg>
+          </button>
           <div class="card-title">Smart Focus Engine</div>
           <div class="mode-toggle">
             <button id="modeStopwatchBtn" class="active" onclick="setTimerMode('stopwatch')"><svg class="icon"><use href="#icon-timer"/></svg> Stopwatch</button>
@@ -1152,11 +1260,13 @@ function startTimer(){
   document.getElementById('startBtn').disabled = true;
   document.getElementById('pauseBtn').disabled = false; document.getElementById('stopBtn').disabled = false;
   document.getElementById('timerSubject').disabled = true; document.getElementById('countdownMinutes').disabled = true;
+  syncFullscreenTimerUI();
 }
 function pauseTimer(){
   playSound('click'); timer.running = false; clearInterval(timer.interval);
   document.getElementById('lampGlow').classList.remove('pulse-active');
   document.getElementById('startBtn').disabled = false; document.getElementById('pauseBtn').disabled = true;
+  syncFullscreenTimerUI();
 }
 function tick(){
   timer.elapsedMs = Date.now() - timer.startedAt;
@@ -1164,13 +1274,51 @@ function tick(){
     const remaining = timer.countdownTotalMs - timer.elapsedMs;
     if(remaining <= 0){
       document.getElementById('timerDisplay').textContent = '00:00:00';
+      const fsD = document.getElementById('fsTimerDisplay'); if(fsD) fsD.textContent = '00:00:00';
       playSound('success'); timer.elapsedMs = timer.countdownTotalMs; stopTimer(); return;
     }
     document.getElementById('timerDisplay').textContent = fmtClock(remaining);
+    const fsD = document.getElementById('fsTimerDisplay'); if(fsD) fsD.textContent = fmtClock(remaining);
   } else {
     document.getElementById('timerDisplay').textContent = fmtClock(timer.elapsedMs);
+    const fsD = document.getElementById('fsTimerDisplay'); if(fsD) fsD.textContent = fmtClock(timer.elapsedMs);
   }
 }
+
+function enterFullscreenTimer(){
+  const overlay = document.getElementById('focusFullscreenOverlay');
+  overlay.classList.add('active');
+  syncFullscreenTimerUI();
+  if(overlay.requestFullscreen){ overlay.requestFullscreen().catch(()=>{}); }
+  document.addEventListener('keydown', fsEscapeHandler);
+}
+function exitFullscreenTimer(){
+  const overlay = document.getElementById('focusFullscreenOverlay');
+  overlay.classList.remove('active');
+  if(document.fullscreenElement){ document.exitFullscreen().catch(()=>{}); }
+  document.removeEventListener('keydown', fsEscapeHandler);
+}
+function fsEscapeHandler(e){ if(e.key === 'Escape'){ exitFullscreenTimer(); } }
+function syncFullscreenTimerUI(){
+  const subjSelect = document.getElementById('timerSubject');
+  const subjLabel = document.getElementById('fsSubjectLabel');
+  if(subjSelect && subjSelect.selectedOptions.length){
+    subjLabel.textContent = subjSelect.selectedOptions[0].textContent;
+  } else {
+    subjLabel.textContent = 'Select a subject to begin';
+  }
+  document.getElementById('fsTimerDisplay').textContent = document.getElementById('timerDisplay').textContent;
+  document.getElementById('fsLampGlow').classList.toggle('pulse-active', timer.running);
+  document.getElementById('fsStartBtn').disabled = document.getElementById('startBtn').disabled;
+  document.getElementById('fsPauseBtn').disabled = document.getElementById('pauseBtn').disabled;
+  document.getElementById('fsStopBtn').disabled = document.getElementById('stopBtn').disabled;
+}
+document.addEventListener('fullscreenchange', () => {
+  if(!document.fullscreenElement){
+    const overlay = document.getElementById('focusFullscreenOverlay');
+    if(overlay.classList.contains('active')) overlay.classList.remove('active');
+  }
+});
 function stopTimer(){
   clearInterval(timer.interval); playSound('success');
   document.getElementById('lampGlow').classList.remove('pulse-active');
@@ -1187,6 +1335,7 @@ function stopTimer(){
   document.getElementById('startBtn').disabled = false; document.getElementById('pauseBtn').disabled = true; document.getElementById('stopBtn').disabled = true;
   document.getElementById('timerSubject').disabled = false; document.getElementById('countdownMinutes').disabled = false;
   renderFocus(); updateDashboardStats();
+  syncFullscreenTimerUI();
 }
 
 function addManualSession(){
