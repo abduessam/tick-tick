@@ -63,6 +63,10 @@ window.chartJsReady = new Promise((resolve, reject) => {
   }
   *{box-sizing:border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
   html,body{margin:0;padding:0;}
+  .icon{ width:1em; height:1em; display:inline-block; vertical-align:-0.15em; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+  .icon-lg{ width:1.4em; height:1.4em; }
+  .icon-xl{ width:44px; height:44px; }
+  .brand-icon{ width:22px; height:22px; stroke-width:1.6; }
   body{
     background: var(--bg);
     color: var(--text);
@@ -92,7 +96,7 @@ window.chartJsReady = new Promise((resolve, reject) => {
   }
   .nav-btn:hover{ background:var(--surface-2); color:var(--text); transform: translateX(4px); }
   .nav-btn.active{ background:var(--surface-2); color:var(--amber); box-shadow: inset -3px 0 0 var(--amber); }
-  .nav-icon{ width:18px; text-align:center; }
+  .nav-icon{ width:18px; display:inline-flex; align-items:center; justify-content:center; }
   .sidebar-footer{ margin-top:auto; font-size:11px; color:var(--muted); border-top:1px solid var(--border); padding-top:14px; }
   .streak-pill{ display:flex; align-items:center; gap:6px; font-family:var(--font-mono); color:var(--sage); font-weight: 600;}
 
@@ -256,7 +260,7 @@ window.chartJsReady = new Promise((resolve, reject) => {
 
   /* mode toggle */
   .mode-toggle{ display:flex; gap:6px; background:var(--surface-2); border-radius:10px; padding:4px; margin-bottom:4px; width: 100%;}
-  .mode-toggle button{ flex:1; border:none; background:transparent; padding:8px 10px; font-size:12.5px; border-radius:7px; color: var(--muted); }
+  .mode-toggle button{ flex:1; border:none; background:transparent; padding:8px 10px; font-size:12.5px; border-radius:7px; color: var(--muted); display:inline-flex; align-items:center; justify-content:center; gap:6px; }
   .mode-toggle button.active{ background:var(--amber); color:#12161d; font-weight:600;}
   .countdown-input{ display:flex; align-items:center; gap:8px; justify-content:center; }
   .countdown-input input{ width:80px; text-align:center; }
@@ -330,17 +334,39 @@ window.chartJsReady = new Promise((resolve, reject) => {
       background:var(--surface); border-top:1px solid var(--border);
       padding:8px 6px; justify-content:space-around; z-index:10;
     }
-    .mobile-nav button{ flex:1; background:transparent; border:none; color:var(--muted); font-size:12px; }
+    .mobile-nav button{ flex:1; background:transparent; border:none; color:var(--muted); font-size:11px; display:flex; flex-direction:column; align-items:center; gap:4px; padding:4px 0; }
+    .mobile-nav button .icon{ width:18px; height:18px; }
     .mobile-nav button.active{ color:var(--amber); }
   }
 </style>
 </head>
 <body>
 
+<!-- SVG Icon Sprite Sheet -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="icon-lamp" viewBox="0 0 24 24"><path d="M12 3a4 4 0 014 4c0 2.2-1.7 3.4-2.6 4.6-.5.7-.9 1.4-1 2.4" /><path d="M12 3a4 4 0 00-4 4c0 2.2 1.7 3.4 2.6 4.6.5.7.9 1.4 1 2.4" /><line x1="12" y1="14" x2="12" y2="18" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="9.5" y1="18" x2="14.5" y2="18" /></symbol>
+  <symbol id="icon-timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="13" x2="15" y2="15" /><line x1="9" y1="2" x2="15" y2="2" /><line x1="12" y1="2" x2="12" y2="5" /></symbol>
+  <symbol id="icon-hourglass" viewBox="0 0 24 24"><path d="M6 2h12" /><path d="M6 22h12" /><path d="M6 2c0 5 4 7 6 8 2-1 6-3 6-8" /><path d="M6 22c0-5 4-7 6-8 2 1 6 3 6 8" /></symbol>
+  <symbol id="icon-notebook" viewBox="0 0 24 24"><path d="M4 4h13a2 2 0 012 2v14a2 2 0 00-2-2H4z" /><path d="M4 4v14a2 2 0 002 2h13" /><line x1="8" y1="8" x2="15" y2="8" /><line x1="8" y1="12" x2="15" y2="12" /></symbol>
+  <symbol id="icon-history" viewBox="0 0 24 24"><path d="M6 4h9l5 5v11a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1z" /><path d="M15 4v5h5" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="13" y2="17" /></symbol>
+  <symbol id="icon-chart" viewBox="0 0 24 24"><line x1="5" y1="20" x2="5" y2="13" /><line x1="12" y1="20" x2="12" y2="6" /><line x1="19" y1="20" x2="19" y2="10" /><line x1="3" y1="20" x2="21" y2="20" /></symbol>
+  <symbol id="icon-flame" viewBox="0 0 24 24"><path d="M12 2c-1 4-5 6-5 11a5 5 0 0010 0c0-2-.8-3.3-1.6-4.4.1 1.3-.5 2.1-1.2 2.2C15 9 14 5.5 12 2z" /></symbol>
+  <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></symbol>
+  <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" /><line x1="12" y1="1.5" x2="12" y2="4" /><line x1="12" y1="20" x2="12" y2="22.5" /><line x1="4.2" y1="4.2" x2="6" y2="6" /><line x1="18" y1="18" x2="19.8" y2="19.8" /><line x1="1.5" y1="12" x2="4" y2="12" /><line x1="20" y1="12" x2="22.5" y2="12" /><line x1="4.2" y1="19.8" x2="6" y2="18" /><line x1="18" y1="6" x2="19.8" y2="4.2" /></symbol>
+  <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M20 16v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3" /><polyline points="16 8 12 4 8 8" /><line x1="12" y1="4" x2="12" y2="15" /></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24"><path d="M20 16v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3" /><polyline points="8 11 12 15 16 11" /><line x1="12" y1="15" x2="12" y2="4" /></symbol>
+  <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M21 11.1V12a9 9 0 11-5.3-8.2" /><polyline points="21 4 12 13.5 8.5 10" /></symbol>
+  <symbol id="icon-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><line x1="14.5" y1="9.5" x2="9.5" y2="14.5" /><line x1="9.5" y1="9.5" x2="14.5" y2="14.5" /></symbol>
+  <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><line x1="12" y1="16" x2="12" y2="11.5" /><circle cx="12" cy="8" r="0.3" fill="currentColor" stroke="none" /></symbol>
+  <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" /></symbol>
+  <symbol id="icon-trophy" viewBox="0 0 24 24"><path d="M8 3h8v6a4 4 0 01-8 0z" /><path d="M8 4H5a3 3 0 003 3" /><path d="M16 4h3a3 3 0 01-3 3" /><line x1="12" y1="13" x2="12" y2="17" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="9.5" y1="17" x2="14.5" y2="17" /></symbol>
+  <symbol id="icon-trending-up" viewBox="0 0 24 24"><polyline points="22 6 13.5 15 8.5 10 2 17" /><polyline points="16 6 22 6 22 12" /></symbol>
+</svg>
+
 <!-- Setup Daily Goals Overlay -->
 <div class="custom-dialog-overlay" id="dailyGoalsOverlay" style="z-index: 99999;">
   <div class="custom-dialog" style="max-width: 500px;">
-    <div class="custom-dialog-title">🎯 New Daily Goals</div>
+    <div class="custom-dialog-title" style="display:flex; align-items:center; gap:8px;"><svg class="icon"><use href="#icon-target"/></svg> New Daily Goals</div>
     <div class="custom-dialog-msg">What objectives or tasks do you plan to achieve today? Add each one and choose whether it's a one-off Daily Task or part of your Master Strategy checklist:</div>
     <div id="dailyGoalsRows" style="display:flex; flex-direction:column; gap:10px; max-height:320px; overflow-y:auto; margin:16px 0; padding:2px 4px 2px 2px;"></div>
     <button type="button" onclick="addDailyGoalRow()" style="width:100%; margin-bottom:20px; padding:10px; border-radius:10px; border:1px dashed var(--border); background:transparent; color:var(--muted); cursor:pointer; font-weight:600; font-size:13px;">+ Add Another Task</button>
@@ -353,9 +379,9 @@ window.chartJsReady = new Promise((resolve, reject) => {
 <!-- Completion Encouragement Overlay -->
 <div class="custom-dialog-overlay" id="encouragementOverlay" style="z-index: 99999;">
   <div class="custom-dialog" style="max-width: 400px; text-align: center;">
-    <div style="font-size: 50px; margin-bottom: 12px;">🎉</div>
+    <svg class="icon icon-xl" style="color:var(--amber); margin-bottom:12px;"><use href="#icon-trophy"/></svg>
     <div class="custom-dialog-title" style="font-size: 22px;">Outstanding Job!</div>
-    <div class="custom-dialog-msg" style="margin-bottom: 24px; line-height: 1.6;">You have successfully completed all your daily tasks. Keep up this incredible momentum and focus! 🚀</div>
+    <div class="custom-dialog-msg" style="margin-bottom: 24px; line-height: 1.6;">You have successfully completed all your daily tasks. Keep up this incredible momentum and focus!</div>
     <button class="primary" style="width: 100%;" onclick="document.getElementById('encouragementOverlay').classList.remove('active')">Awesome, Close</button>
   </div>
 </div>
@@ -364,7 +390,7 @@ window.chartJsReady = new Promise((resolve, reject) => {
 
 <!-- Custom Alert Markup -->
 <div class="custom-toast" id="customToast">
-  <span id="toastIcon">💡</span>
+  <span id="toastIcon"><svg class="icon"><use href="#icon-info"/></svg></span>
   <span id="toastMsg">Notification message</span>
 </div>
 
@@ -393,28 +419,50 @@ window.chartJsReady = new Promise((resolve, reject) => {
   </div>
 </div>
 
+<!-- Edit Session Markup -->
+<div class="custom-dialog-overlay" id="editSessionOverlay">
+  <div class="custom-dialog">
+    <div class="custom-dialog-title">Edit Session</div>
+    <div class="custom-dialog-msg">Update the subject and/or duration for this log entry.</div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:12.5px; color:var(--muted); font-weight:600;">
+        Subject
+        <select id="editSessionSubject" style="width:100%;"></select>
+      </label>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:12.5px; color:var(--muted); font-weight:600;">
+        Duration (minutes)
+        <input type="number" id="editSessionMinutes" min="1" step="1" style="width:100%;">
+      </label>
+    </div>
+    <div class="custom-dialog-actions">
+      <button id="editSessionCancelBtn">Cancel</button>
+      <button class="primary" id="editSessionApproveBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <aside class="sidebar">
-    <div class="brand">🪔 StudyDesk</div>
+    <div class="brand"><svg class="icon brand-icon"><use href="#icon-lamp"/></svg> StudyDesk</div>
     <div class="brand-sub" id="todayDateLabel">--</div>
     <button class="nav-btn active" data-page="focus" onclick="showPage('focus')">
-      <span class="nav-icon">⏱️</span> Focus Desk
+      <span class="nav-icon"><svg class="icon"><use href="#icon-timer"/></svg></span> Focus Desk
     </button>
     <button class="nav-btn" data-page="tasks" onclick="showPage('tasks')">
-      <span class="nav-icon">📓</span> Tasks & Subjects
+      <span class="nav-icon"><svg class="icon"><use href="#icon-notebook"/></svg></span> Tasks & Subjects
     </button>
     <button class="nav-btn" data-page="history" onclick="showPage('history')">
-      <span class="nav-icon">📜</span> Full History
+      <span class="nav-icon"><svg class="icon"><use href="#icon-history"/></svg></span> Full History
     </button>
     <button class="nav-btn" data-page="trends" onclick="showPage('trends')">
-      <span class="nav-icon">📈</span> Analytics & Trends
+      <span class="nav-icon"><svg class="icon"><use href="#icon-chart"/></svg></span> Analytics & Trends
     </button>
     <div class="sidebar-footer">
-      <div class="streak-pill">🔥 <span id="streakLabel">0</span> Day Streak</div>
+      <div class="streak-pill"><svg class="icon"><use href="#icon-flame"/></svg> <span id="streakLabel">0</span> Day Streak</div>
       <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
-        <button class="sm ghost" onclick="toggleThemeMode()" id="themeToggleBtn" style="text-align:left; width:100%; padding:4px 0;">🌙 Dark Mode</button>
-        <button class="sm ghost" onclick="exportData()" style="text-align:left; width:100%; padding:4px 0;">📤 Export JSON</button>
-        <button class="sm ghost" onclick="importData()" style="text-align:left; width:100%; padding:4px 0; color:var(--sage);">📥 Import JSON</button>
+        <button class="sm ghost" onclick="toggleThemeMode()" id="themeToggleBtn" style="text-align:left; width:100%; padding:4px 0; display:flex; align-items:center; gap:8px;"><svg class="icon"><use href="#icon-moon"/></svg> Dark Mode</button>
+        <button class="sm ghost" onclick="exportData()" style="text-align:left; width:100%; padding:4px 0; display:flex; align-items:center; gap:8px;"><svg class="icon"><use href="#icon-upload"/></svg> Export JSON</button>
+        <button class="sm ghost" onclick="importData()" style="text-align:left; width:100%; padding:4px 0; color:var(--sage); display:flex; align-items:center; gap:8px;"><svg class="icon"><use href="#icon-download"/></svg> Import JSON</button>
       </div>
     </div>
   </aside>
@@ -450,8 +498,8 @@ window.chartJsReady = new Promise((resolve, reject) => {
         <div class="card">
           <div class="card-title">Smart Focus Engine</div>
           <div class="mode-toggle">
-            <button id="modeStopwatchBtn" class="active" onclick="setTimerMode('stopwatch')">⏱️ Stopwatch</button>
-            <button id="modeCountdownBtn" onclick="setTimerMode('countdown')">⏳ Countdown</button>
+            <button id="modeStopwatchBtn" class="active" onclick="setTimerMode('stopwatch')"><svg class="icon"><use href="#icon-timer"/></svg> Stopwatch</button>
+            <button id="modeCountdownBtn" onclick="setTimerMode('countdown')"><svg class="icon"><use href="#icon-hourglass"/></svg> Countdown</button>
           </div>
           <div class="lamp-wrap">
             <div class="lamp-glow" id="lampGlow">
@@ -473,7 +521,7 @@ window.chartJsReady = new Promise((resolve, reject) => {
               <div class="stat-label" style="margin-bottom: 10px; font-weight: 600; text-align: center;">Ambient Sound</div>
               <div class="ambient-btn-row">
                 <button type="button" class="ambient-btn" id="ambientBtn-fire" onclick="toggleAmbient('fire')">
-                  <span class="ambient-icon">🔥</span><span class="ambient-name">Fire</span>
+                  <span class="ambient-icon"><svg class="icon"><use href="#icon-flame"/></svg></span><span class="ambient-name">Fire</span>
                 </button>
               </div>
             </div>
@@ -640,10 +688,10 @@ window.chartJsReady = new Promise((resolve, reject) => {
 </div>
 
 <div class="mobile-nav">
-  <button class="active" data-page="focus" onclick="showPage('focus')">⏱️ Focus</button>
-  <button data-page="tasks" onclick="showPage('tasks')">📓 Tasks</button>
-  <button data-page="history" onclick="showPage('history')">📜 History</button>
-  <button data-page="trends" onclick="showPage('trends')">📈 Analytics</button>
+  <button class="active" data-page="focus" onclick="showPage('focus')"><svg class="icon"><use href="#icon-timer"/></svg> Focus</button>
+  <button data-page="tasks" onclick="showPage('tasks')"><svg class="icon"><use href="#icon-notebook"/></svg> Tasks</button>
+  <button data-page="history" onclick="showPage('history')"><svg class="icon"><use href="#icon-history"/></svg> History</button>
+  <button data-page="trends" onclick="showPage('trends')"><svg class="icon"><use href="#icon-chart"/></svg> Analytics</button>
 </div>
 
 <script>
@@ -655,7 +703,9 @@ function applyTheme(){
   const isLight = state.theme === 'light';
   document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
   const btn = document.getElementById('themeToggleBtn');
-  if(btn) btn.textContent = isLight ? '☀️ Light Mode' : '🌙 Dark Mode';
+  if(btn) btn.innerHTML = isLight
+    ? '<svg class="icon"><use href="#icon-sun"/></svg> Light Mode'
+    : '<svg class="icon"><use href="#icon-moon"/></svg> Dark Mode';
 }
 function toggleThemeMode(){
   playSound('click');
@@ -676,7 +726,8 @@ function showToast(msg, type = 'normal') {
   const msgEl = document.getElementById('toastMsg');
   
   toast.className = `custom-toast ${type}`;
-  icon.textContent = type === 'success' ? '✅' : (type === 'danger' ? '❌' : '💡');
+  const iconRef = type === 'success' ? 'icon-check-circle' : (type === 'danger' ? 'icon-x-circle' : 'icon-info');
+  icon.innerHTML = `<svg class="icon"><use href="#${iconRef}"/></svg>`;
   msgEl.textContent = msg;
   
   toast.classList.add('active');
@@ -1296,12 +1347,37 @@ function renderHistory(){
     </tr>`;
   }).join('');
 }
+function editSessionDialog(subjectId, minutes){
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('editSessionOverlay');
+    const subjectSel = document.getElementById('editSessionSubject');
+    const minutesInput = document.getElementById('editSessionMinutes');
+
+    subjectSel.innerHTML = state.subjects.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+    subjectSel.value = subjectId;
+    minutesInput.value = minutes;
+
+    overlay.classList.add('active');
+    minutesInput.focus();
+
+    const cleanUp = (result) => {
+      overlay.classList.remove('active');
+      btnApprove.onclick = null; btnCancel.onclick = null;
+      resolve(result);
+    };
+    const btnApprove = document.getElementById('editSessionApproveBtn');
+    const btnCancel = document.getElementById('editSessionCancelBtn');
+    btnApprove.onclick = () => cleanUp({ subjectId: subjectSel.value, minutes: parseInt(minutesInput.value, 10) });
+    btnCancel.onclick = () => cleanUp(null);
+  });
+}
 async function editSession(id){
   const s = state.sessions.find(x=>x.id===id); if(!s) return;
-  const input = await customPrompt('Modify Session', 'Enter new total duration minutes:', s.minutes); if(input === null) return;
-  const mins = parseInt(input, 10); if(!mins || mins < 1) return;
+  const result = await editSessionDialog(s.subjectId, s.minutes); if(result === null) return;
+  const mins = result.minutes; if(!mins || mins < 1) return;
+  s.subjectId = result.subjectId;
   s.minutes = mins; if(s.startedAt) s.endedAt = s.startedAt + mins*60000;
-  saveState(); renderHistory(); renderFocus(); updateDashboardStats();
+  saveState(); renderHistory(); renderFocus(); updateDashboardStats(); renderTrends();
   showToast('Log updated.', 'success');
 }
 async function deleteSession(id){
